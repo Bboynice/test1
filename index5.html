@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Рухома картинка</title>
+  <style>
+    #image {
+      position: absolute;
+    }
+
+    #fade-effect {
+      width: 200px;
+      height: 200px;
+      background-color: #f00;
+      opacity: 1;
+      transition: opacity 1s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+
+    #output {
+      width: 300px;
+      height: 100px;
+      border: 1px solid #000;
+      padding: 10px;
+      font-size: 18px;
+    }
+
+    .tooltip {
+      position: absolute;
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: none;
+    }
+
+    #color-list {
+      position: absolute;
+      top: 10px;
+      left: 300px;
+    }
+
+    #square {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 100px;
+      height: 100px;
+      background-color: black;
+    }
+
+    #ad {
+      display: block;
+      margin-bottom: 10px;
+      background-color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <a id="about_text">Hello my name is</a>
+  <h1>Рухома картинка</h1>
+  <img id="image" src="img/photo_2023-05-24_20-41-50.jpg" width="100" height="100">
+  <p>Це текст про плівку.</p>
+  <p>Плівка - це ...</p>
+
+  <h1>Текстовий годинник</h1>
+  <p id="clock"></p>
+
+  <h1>Ефект витирання</h1>
+  <div id="fade-effect"><img src="img/photo_2023-05-24_20-41-50.jpg" height="200px" width="200px"></div>
+
+  <h1>Координати курсора миші і клавіші</h1>
+  <div id="output"></div>
+
+  <p id="text-tooltip">Натисніть на текст</p>
+  <div class="tooltip" id="tooltip">
+    Підказка
+  </div>
+
+  <h1>Зміна кольору квадрата</h1>
+  <ul id="color-list">
+    <li><button onclick="changeColor('red')">Червоний</button></li>
+    <li><button onclick="changeColor('blue')">Синій</button></li>
+    <li><button onclick="changeColor('green')">Зелений</button></li>
+    <li><button onclick="changeColor('yellow')">Жовтий</button></li>
+    <li><button onclick="changeColor('orange')">Помаранчевий</button></li>
+  </ul>
+
+  <div id="square"></div>
+
+  <div id="ad">
+    <p>Рекламний текст</p>
+    <button onclick="hideAd()">Прибрати</button>
+  </div>
+
+  <script>
+    function getRandomPosition(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function moveImage() {
+      var imageElement = document.getElementById('image');
+      var screenWidth = window.innerWidth;
+      var screenHeight = window.innerHeight;
+      var randomLeft = getRandomPosition(0, screenWidth - imageElement.clientWidth);
+      var randomTop = getRandomPosition(0, screenHeight - imageElement.clientHeight);
+      imageElement.style.left = randomLeft + 'px';
+      imageElement.style.top = randomTop + 'px';
+    }
+
+    window.onload = function () {
+      moveImage();
+      setInterval(moveImage, 1000);
+      changeParagraphFontSize();
+      updateClock();
+      setInterval(updateClock, 1000);
+
+
+      var fadeEffectElement = document.getElementById('fade-effect');
+      fadeOut(fadeEffectElement);
+
+      document.addEventListener('mousemove', showMouseCoordinates);
+      document.addEventListener('keydown', showKeyPressed);
+
+      var text = document.getElementById('text');
+      text.addEventListener('click', function () {
+        tooltipElement.style.display = 'none'; // Переконатися, що підказка спочатку схована
+        tooltipElement.style.position = 'absolute'; // Задати позицію елемента tooltip
+        tooltipElement.addEventListener('click', function (event) {
+          event.stopPropagation(); // Заборонити вспливання кліку на підказку
+        });
+        document.addEventListener('mousemove', showTooltip);
+        document.addEventListener('click', hideTooltip);
+      });
+    };
+
+
+    function changeParagraphFontSize() {
+      var paragraphs = document.getElementsByTagName('p');
+      for (var i = 0; i < paragraphs.length; i++) {
+        paragraphs[i].setAttribute('style', 'font-size: 30px');
+      }
+    }
+
+    function updateClock() {
+      var clockElement = document.getElementById('clock');
+      var currentTime = new Date();
+      var hours = currentTime.getHours();
+      var minutes = currentTime.getMinutes();
+      var seconds = currentTime.getSeconds();
+
+      // Додати нулі спереду, якщо значення менше 10
+      hours = (hours < 10 ? '0' + hours : hours);
+      minutes = (minutes < 10 ? '0' + minutes : minutes);
+      seconds = (seconds < 10 ? '0' + seconds : seconds);
+
+      var timeString = hours + ':' + minutes + ':' + seconds;
+      clockElement.textContent = timeString;
+    }
+
+
+
+    function fadeOut(element) {
+      var opacity = 1;
+      var timer = setInterval(function () {
+        if (opacity <= 0) {
+          clearInterval(timer);
+        }
+        element.style.opacity = opacity;
+        opacity -= 0.1;
+      }, 100);
+    }
+
+
+    var outputElement = document.getElementById('output');
+
+    function showMouseCoordinates(event) {
+      var mouseX = event.clientX;
+      var mouseY = event.clientY;
+      outputElement.textContent = 'Координати миші: X=' + mouseX + ', Y=' + mouseY;
+    }
+
+    function showKeyPressed(event) {
+      var keyCode = event.keyCode || event.which;
+      outputElement.textContent += ' Код натиснутої клавіші: ' + keyCode;
+    }
+
+
+    var tooltipElement = document.getElementById('tooltip');
+
+    function showTooltip(event) {
+      var x = event.clientX;
+      var y = event.clientY;
+
+      var tooltipWidth = tooltipElement.offsetWidth;
+      var tooltipHeight = tooltipElement.offsetHeight;
+
+      var windowWidth = window.innerWidth;
+      var windowHeight = window.innerHeight;
+
+      var left, top;
+
+      if (x + tooltipWidth > windowWidth) {
+        left = windowWidth - tooltipWidth;
+      } else {
+        left = x;
+      }
+
+      if (y + tooltipHeight > windowHeight) {
+        top = y - tooltipHeight;
+      } else {
+        top = y;
+      }
+
+      tooltipElement.style.left = left + 'px';
+      tooltipElement.style.top = top + 'px';
+      tooltipElement.style.display = 'block';
+    }
+
+    function hideTooltip() {
+      tooltipElement.style.display = 'none';
+    }
+
+    function changeColor(color) {
+      var square = document.getElementById('square');
+      square.style.backgroundColor = color;
+    }
+
+
+
+    // Функція сортування по іменах (в алфавітному порядку)
+    function sortByName(arr) {
+      arr.sort(function (a, b) {
+        var nameA = a.name.toUpperCase();
+        var nameB = b.name.toUpperCase();
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+
+    // Функція сортування по зростанню
+    function sortByHeight(arr) {
+      arr.sort(function (a, b) {
+        return a.height - b.height;
+      });
+    }
+
+    // Приклад виклику функції сортування по зростанню
+    var people = [{
+        name: 'Іван',
+        height: 180
+      },
+      {
+        name: 'Марія',
+        height: 165
+      },
+      {
+        name: 'Петро',
+        height: 175
+      },
+      {
+        name: 'Олена',
+        height: 170
+      },
+    ];
+
+    sortByHeight(people);
+
+    console.log(people);
+
+    // Функція для закриття вікна
+    function closeWindow() {
+      window.close();
+    }
+
+    // Задаємо інтервал часу (в мілісекундах) - 1 хвилина
+    var countdownInterval = 1 * 20 * 1000;
+
+    // Запускаємо зворотний відлік часу
+    setTimeout(closeWindow, countdownInterval);
+
+
+
+
+    // Функція для приховування рекламного тексту
+    function hideAd() {
+      var adElement = document.getElementById('ad');
+      adElement.style.display = 'none';
+
+      // Зберігаємо інформацію в localStorage про те, що рекламу необхідно приховати протягом одного дня
+      var currentDate = new Date();
+      var nextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+      localStorage.setItem('hideAdUntil', nextDay.getTime());
+    }
+
+    // Перевіряємо, чи не минув встановлений термін показу рекламного тексту
+    function checkAdStatus() {
+      var adElement = document.getElementById('ad');
+
+      // Отримуємо інформацію з localStorage
+      var hideUntil = localStorage.getItem('hideAdUntil');
+
+      if (hideUntil) {
+        var hideUntilTimestamp = parseInt(hideUntil);
+
+        // Порівнюємо поточну дату з датою, до якої реклама повинна бути прихована
+        if (Date.now() < hideUntilTimestamp) {
+          adElement.style.display = 'none';
+        } else {
+          adElement.style.display = 'block';
+        }
+      }
+    }
+
+    // Викликаємо функцію для перевірки статусу реклами при завантаженні сторінки
+    checkAdStatus();
+  </script>
+</body>
+
+</html>
